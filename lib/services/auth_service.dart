@@ -192,6 +192,8 @@ class AuthService {
           return 'The password provided is too weak.';
         case 'invalid-email':
           return 'The email address is invalid.';
+        case 'operation-not-allowed':
+          return 'Sign-up is disabled, contact admin.';
         case 'user-disabled':
           return 'This user account has been disabled.';
         case 'too-many-requests':
@@ -200,7 +202,12 @@ class AuthService {
           return 'Authentication failed: ${e.message}';
       }
     }
-    return 'An unexpected error occurred.';
+    // For non-Firebase errors, surface the real message for easier debugging
+    try {
+      return e?.toString() ?? 'An unknown error occurred.';
+    } catch (_) {
+      return 'An unknown error occurred.';
+    }
   }
 
   // Check if user is admin
