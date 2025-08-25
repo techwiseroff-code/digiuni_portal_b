@@ -4,7 +4,8 @@ class NotificationModel {
   final String id;
   final String title;
   final String message;
-  final String type; // 'announcement', 'attendance', 'grade', 'event', 'general'
+  final String
+  type; // 'announcement', 'attendance', 'grade', 'event', 'general'
   final String? targetUserId; // null for general notifications
   final String? targetRole; // 'student', 'teacher', 'all'
   final String? targetClass; // null for general notifications
@@ -32,6 +33,19 @@ class NotificationModel {
     this.actionUrl,
     this.metadata,
   });
+
+  // Convenience computed fields for compatibility with UI
+  String get priority {
+    final value = metadata != null ? metadata!['priority'] : null;
+    if (value is String && value.isNotEmpty) return value;
+    return 'normal';
+  }
+
+  String? get subject {
+    final value = metadata != null ? metadata!['subject'] : null;
+    if (value is String && value.isNotEmpty) return value;
+    return null;
+  }
 
   factory NotificationModel.fromMap(Map<String, dynamic> map, String id) {
     return NotificationModel(

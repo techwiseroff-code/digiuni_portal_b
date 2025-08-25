@@ -609,8 +609,12 @@ class _StudentNotificationsScreenState
   }
 
   Widget _buildNotificationCard(NotificationModel notification) {
-    final isUrgent = notification.priority == 'urgent';
-    final isHigh = notification.priority == 'high';
+    final String priority =
+        (notification.metadata?['priority'] as String?)?.toLowerCase() ??
+        'normal';
+    final String? subject = notification.metadata?['subject'] as String?;
+    final isUrgent = priority == 'urgent';
+    final isHigh = priority == 'high';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -709,12 +713,8 @@ class _StudentNotificationsScreenState
             runSpacing: 8,
             children: [
               _buildTag(notification.type, _getTagColor(notification.type)),
-              _buildTag(
-                notification.priority,
-                _getTagColor(notification.priority),
-              ),
-              if (notification.subject != null)
-                _buildTag(notification.subject!, Colors.purple),
+              _buildTag(priority, _getTagColor(priority)),
+              if (subject != null) _buildTag(subject, Colors.purple),
             ],
           ),
 
@@ -738,7 +738,7 @@ class _StudentNotificationsScreenState
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      notification.senderName ?? 'System',
+                      notification.senderName,
                       style: TextStyle(color: Colors.white70, fontSize: 12),
                       overflow: TextOverflow.ellipsis,
                     ),
