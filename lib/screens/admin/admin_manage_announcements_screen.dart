@@ -14,6 +14,9 @@ class AdminManageAnnouncementsScreen extends StatefulWidget {
 
 class _AdminManageAnnouncementsScreenState
     extends State<AdminManageAnnouncementsScreen> {
+  final _titleController = TextEditingController();
+  final _descController = TextEditingController();
+  String _targetRole = 'all';
   @override
   void initState() {
     super.initState();
@@ -31,7 +34,7 @@ class _AdminManageAnnouncementsScreenState
     return Scaffold(
       appBar: AppBar(title: const Text('Manage Announcements')),
       floatingActionButton: FloatingActionButton(
-        onPressed: _createEvent,
+        onPressed: _showCreateEventDialog,
         child: const Icon(Icons.add),
       ),
       body: Consumer<DataProvider>(
@@ -47,6 +50,16 @@ class _AdminManageAnnouncementsScreenState
               return ListTile(
                 title: Text(e.title),
                 subtitle: Text('${e.type} • ${e.targetRole ?? 'all'}'),
+                trailing: PopupMenuButton<String>(
+                  onSelected: (v) async {
+                    if (v == 'delete') {
+                      await context.read<DataProvider>().deleteEvent(e.id);
+                    }
+                  },
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(value: 'delete', child: Text('Delete')),
+                  ],
+                ),
               );
             },
           );
@@ -55,30 +68,77 @@ class _AdminManageAnnouncementsScreenState
     );
   }
 
-  void _createEvent() async {
-    final dp = context.read<DataProvider>();
-    final id = dp.generateId();
-    final auth = context.read<AuthProvider>();
-    final ev = EventModel(
-      id: id,
-      title: 'Announcement',
-      description: 'Details',
-      type: 'announcement',
-      createdBy: auth.currentUser!.uid,
-      createdByName: auth.userData?.name ?? 'Admin',
-      createdByRole: 'admin',
-      createdAt: DateTime.now(),
-      date: DateTime.now(),
-      isActive: true,
-      targetRole: 'all',
-      targetClass: null,
-      metadata: const {},
+  void _showCreateEventDialog() {
+    _titleController.clear();
+    _descController.clear();
+    _targetRole = 'all';
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('New Announcement'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: const InputDecoration(labelText: 'Title'),
+              ),
+              TextField(
+                controller: _descController,
+                decoration: const InputDecoration(labelText: 'Description'),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 8),
+              DropdownButton<String>(
+                value: _targetRole,
+                items: const [
+                  DropdownMenuItem(value: 'all', child: Text('All')),
+                  DropdownMenuItem(value: 'student', child: Text('Students')),
+                  DropdownMenuItem(value: 'teacher', child: Text('Teachers')),
+                ],
+                onChanged: (v) => setState(() => _targetRole = v ?? 'all'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final dp = context.read<DataProvider>();
+                final id = dp.generateId();
+                final auth = context.read<AuthProvider>();
+                final ev = EventModel(
+                  id: id,
+                  title: _titleController.text.trim(),
+                  description: _descController.text.trim(),
+                  type: 'announcement',
+                  createdBy: auth.currentUser!.uid,
+                  createdByName: auth.userData?.name ?? 'Admin',
+                  createdByRole: 'admin',
+                  createdAt: DateTime.now(),
+                  date: DateTime.now(),
+                  isActive: true,
+                  targetRole: _targetRole == 'all' ? 'all' : _targetRole,
+                  targetClass: null,
+                  metadata: const {},
+                );
+                await dp.createEvent(ev);
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Announcement posted')),
+                  );
+                }
+              },
+              child: const Text('Post'),
+            ),
+          ],
+        );
+      },
     );
-    await dp.createEvent(ev);
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Event created')));
-    }
   }
 }

@@ -379,6 +379,15 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteTimetable(String timetableId) async {
+    try {
+      await _firestoreService.deleteTimetable(timetableId);
+    } catch (e) {
+      _timetableError = e.toString();
+      notifyListeners();
+    }
+  }
+
   // Notification Operations
   void listenToUserNotifications(
     String userId, {
@@ -562,6 +571,14 @@ class DataProvider extends ChangeNotifier {
 
   Future<void> deleteClass(String classId) async {
     await _firestoreService.deleteClass(classId);
+  }
+
+  Future<void> createClass(Map<String, dynamic> classData) async {
+    await _firestoreService.createClass(classData);
+  }
+
+  Future<void> updateClass(String classId, Map<String, dynamic> data) async {
+    await _firestoreService.updateClass(classId, data);
   }
 
   Future<Map<String, int>> getSystemStats() async {

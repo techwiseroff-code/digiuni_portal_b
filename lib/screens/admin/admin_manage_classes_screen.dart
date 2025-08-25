@@ -12,6 +12,9 @@ class AdminManageClassesScreen extends StatefulWidget {
 }
 
 class _AdminManageClassesScreenState extends State<AdminManageClassesScreen> {
+  final _classCodeController = TextEditingController();
+  final _subjectController = TextEditingController();
+  final _roomController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -28,6 +31,10 @@ class _AdminManageClassesScreenState extends State<AdminManageClassesScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Manage Classes')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showCreateClassDialog,
+        child: const Icon(Icons.add),
+      ),
       body: Consumer<DataProvider>(
         builder: (context, dp, _) {
           final classes = dp.teacherClasses; // reused list for all classes
@@ -43,20 +50,86 @@ class _AdminManageClassesScreenState extends State<AdminManageClassesScreen> {
                 subtitle: Text(
                   'Teacher: ${c.teacherName} • Students: ${c.studentIds.length}',
                 ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: () async {
-                    await context.read<DataProvider>().deleteClass(c.id);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Class deleted')),
-                    );
+                trailing: PopupMenuButton<String>(
+                  onSelected: (v) async {
+                    if (v == 'delete') {
+                      await context.read<DataProvider>().deleteClass(c.id);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Class deleted')),
+                        );
+                      }
+                    }
                   },
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(value: 'delete', child: Text('Delete')),
+                  ],
                 ),
               );
             },
           );
         },
       ),
+    );
+  }
+
+  void _showCreateClassDialog() {
+    _classCodeController.clear();
+    _subjectController.clear();
+    _roomController.clear();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Create Class'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _classCodeController,
+                decoration: const InputDecoration(labelText: 'Class Code'),
+              ),
+              TextField(
+                controller: _subjectController,
+                decoration: const InputDecoration(labelText: 'Subject Name'),
+              ),
+              TextField(
+                controller: _roomController,
+                decoration: const InputDecoration(labelText: 'Room'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await context.read<DataProvider>().createClass({
+                  'classCode': _classCodeController.text.trim(),
+                  'subjectName': _subjectController.text.trim(),
+                  'teacherId': '',
+                  'teacherName': '',
+                  'studentIds': <String>[],
+                  'schedule': <Map<String, dynamic>>[],
+                  'room': _roomController.text.trim(),
+                  'description': null,
+                  'createdAt': DateTime.now(),
+                  'isActive': true,
+                });
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Class created')),
+                  );
+                }
+              },
+              child: const Text('Create'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

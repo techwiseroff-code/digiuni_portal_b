@@ -96,7 +96,7 @@ class AuthService {
         );
       }
 
-      final secondaryAuth = FirebaseAuth.instanceFor(app: secondaryApp!);
+      final secondaryAuth = FirebaseAuth.instanceFor(app: secondaryApp);
 
       UserCredential userCredential = await secondaryAuth
           .createUserWithEmailAndPassword(email: email, password: password);

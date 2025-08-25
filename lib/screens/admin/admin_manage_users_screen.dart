@@ -239,9 +239,9 @@ class _AdminManageUsersScreenState extends State<AdminManageUsersScreen> {
                 });
                 if (mounted) {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('User updated')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('User updated')));
                 }
               },
               child: const Text('Save'),

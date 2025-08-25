@@ -398,8 +398,10 @@ class FirestoreService {
     return query.snapshots().map(
       (snapshot) => snapshot.docs
           .map(
-            (doc) =>
-                UserModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+            (doc) => UserModel.fromMap(
+              Map<String, dynamic>.from(doc.data() as Map),
+              doc.id,
+            ),
           )
           .toList(),
     );
@@ -414,7 +416,7 @@ class FirestoreService {
           (snapshot) => snapshot.docs
               .map(
                 (doc) => ClassModel.fromMap(
-                  doc.data() as Map<String, dynamic>,
+                  Map<String, dynamic>.from(doc.data() as Map),
                   doc.id,
                 ),
               )
@@ -431,7 +433,7 @@ class FirestoreService {
           (snapshot) => snapshot.docs
               .map(
                 (doc) => TimetableModel.fromMap(
-                  doc.data() as Map<String, dynamic>,
+                  Map<String, dynamic>.from(doc.data() as Map),
                   doc.id,
                 ),
               )
@@ -449,7 +451,7 @@ class FirestoreService {
           (snapshot) => snapshot.docs
               .map(
                 (doc) => NotificationModel.fromMap(
-                  doc.data() as Map<String, dynamic>,
+                  Map<String, dynamic>.from(doc.data() as Map),
                   doc.id,
                 ),
               )
@@ -467,7 +469,7 @@ class FirestoreService {
           (snapshot) => snapshot.docs
               .map(
                 (doc) => EventModel.fromMap(
-                  doc.data() as Map<String, dynamic>,
+                  Map<String, dynamic>.from(doc.data() as Map),
                   doc.id,
                 ),
               )
