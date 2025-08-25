@@ -25,12 +25,16 @@ class AuthService {
         password: password,
       );
 
-      // Update last login time
+      // Update last login time (non-blocking; ignore permission issues)
       if (userCredential.user != null) {
-        await _firestore
-            .collection('users')
-            .doc(userCredential.user!.uid)
-            .update({'lastLoginAt': FieldValue.serverTimestamp()});
+        try {
+          await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .update({'lastLoginAt': FieldValue.serverTimestamp()});
+        } catch (_) {
+          // Do not surface this to the user – login should succeed even if this field cannot be updated
+        }
       }
 
       return userCredential;
