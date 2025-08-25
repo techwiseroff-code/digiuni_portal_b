@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "66724907478",
+    "project_id": "digiuni-portal",
+    "storage_bucket": "digiuni-portal.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:66724907478:android:74968ad58a6aef78ccbc77",
+        "android_client_info": {
+          "package_name": "com.example.digiuni_portal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYlS0VGqfRr4i0GEaRbXbHNIIvMylhGpw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
