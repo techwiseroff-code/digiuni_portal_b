@@ -4,6 +4,7 @@ import '../../widgets/glass_container.dart';
 import '../../widgets/primary_button.dart';
 import 'student_login_screen.dart';
 import 'teacher_login_screen.dart';
+import 'admin_login_screen.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
@@ -92,6 +93,22 @@ class RoleSelectionScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const TeacherLoginScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Admin Login Button
+                  PrimaryButton(
+                    label: "Login as Admin",
+                    width: 240,
+                    height: 50,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminLoginScreen(),
                         ),
                       );
                     },
