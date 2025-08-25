@@ -571,4 +571,29 @@ class DataProvider extends ChangeNotifier {
   Future<void> deleteNotification(String notificationId) async {
     await _firestoreService.deleteNotification(notificationId);
   }
+
+  // Admin helpers
+  Future<void> updateUser(String uid, Map<String, dynamic> data) async {
+    await _firestoreService.updateUser(uid, data);
+  }
+
+  Future<void> deleteUser(String uid) async {
+    await _firestoreService.deleteUser(uid);
+  }
+
+  Future<void> enrollStudents(String classId, List<String> studentIds) async {
+    await _firestoreService.enrollStudents(classId, studentIds);
+  }
+
+  Future<void> removeStudent(String classId, String studentId) async {
+    await _firestoreService.removeStudent(classId, studentId);
+  }
+
+  Future<void> assignTeacher(
+    String classId,
+    String teacherId,
+    String teacherName,
+  ) async {
+    await _firestoreService.assignTeacher(classId, teacherId, teacherName);
+  }
 }

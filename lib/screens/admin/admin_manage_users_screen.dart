@@ -16,6 +16,9 @@ class _AdminManageUsersScreenState extends State<AdminManageUsersScreen> {
   final _nameController = TextEditingController();
   String _newRole = 'student';
   final _passwordController = TextEditingController();
+  final _editNameController = TextEditingController();
+  final _editEmailController = TextEditingController();
+  String? _editingRole;
 
   @override
   void initState() {
@@ -30,6 +33,8 @@ class _AdminManageUsersScreenState extends State<AdminManageUsersScreen> {
     _emailController.dispose();
     _nameController.dispose();
     _passwordController.dispose();
+    _editNameController.dispose();
+    _editEmailController.dispose();
     super.dispose();
   }
 
@@ -84,6 +89,26 @@ class _AdminManageUsersScreenState extends State<AdminManageUsersScreen> {
                       ),
                       title: Text(u.name),
                       subtitle: Text('${u.email} • ${u.role}'),
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (value) async {
+                          if (value == 'edit') {
+                            _showEditUserDialog(u.uid, u.name, u.email, u.role);
+                          } else if (value == 'delete') {
+                            await context.read<DataProvider>().deleteUser(
+                              u.uid,
+                            );
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('User deleted')),
+                              );
+                            }
+                          }
+                        },
+                        itemBuilder: (context) => const [
+                          PopupMenuItem(value: 'edit', child: Text('Edit')),
+                          PopupMenuItem(value: 'delete', child: Text('Delete')),
+                        ],
+                      ),
                     );
                   },
                 );
@@ -156,6 +181,70 @@ class _AdminManageUsersScreenState extends State<AdminManageUsersScreen> {
                 }
               },
               child: const Text('Create'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditUserDialog(
+    String uid,
+    String currentName,
+    String currentEmail,
+    String currentRole,
+  ) {
+    _editNameController.text = currentName;
+    _editEmailController.text = currentEmail;
+    _editingRole = currentRole;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit User'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _editNameController,
+                decoration: const InputDecoration(labelText: 'Name'),
+              ),
+              TextField(
+                controller: _editEmailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+                enabled: false,
+              ),
+              const SizedBox(height: 8),
+              DropdownButton<String>(
+                value: _editingRole,
+                items: const [
+                  DropdownMenuItem(value: 'student', child: Text('Student')),
+                  DropdownMenuItem(value: 'teacher', child: Text('Teacher')),
+                  DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                ],
+                onChanged: (v) => setState(() => _editingRole = v),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await context.read<DataProvider>().updateUser(uid, {
+                  'name': _editNameController.text.trim(),
+                  'role': _editingRole ?? currentRole,
+                });
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('User updated')),
+                  );
+                }
+              },
+              child: const Text('Save'),
             ),
           ],
         );

@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import '../firebase_options.dart';
 import '../models/user_model.dart';
 
 class AuthService {
@@ -75,7 +77,7 @@ class AuthService {
     }
   }
 
-  // Create user account (admin only)
+  // Create user account (admin only) using a secondary FirebaseApp to avoid switching the current session
   Future<void> createUserAccount({
     required String email,
     required String password,
@@ -83,8 +85,20 @@ class AuthService {
     required String role,
   }) async {
     try {
-      // Create user in Firebase Auth
-      UserCredential userCredential = await _auth
+      // Use a secondary app so we don't sign out the current admin
+      FirebaseApp? secondaryApp;
+      try {
+        secondaryApp = Firebase.app('admin_secondary');
+      } catch (_) {
+        secondaryApp = await Firebase.initializeApp(
+          name: 'admin_secondary',
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      }
+
+      final secondaryAuth = FirebaseAuth.instanceFor(app: secondaryApp!);
+
+      UserCredential userCredential = await secondaryAuth
           .createUserWithEmailAndPassword(email: email, password: password);
 
       // Create user document in Firestore
@@ -135,6 +149,9 @@ class AuthService {
               'isActive': true,
             });
       }
+
+      // Clean up secondary auth session (sign it out to free resources)
+      await secondaryAuth.signOut();
     } catch (e) {
       throw _handleAuthError(e);
     }

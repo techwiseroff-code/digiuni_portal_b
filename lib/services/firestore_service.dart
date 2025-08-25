@@ -603,3 +603,140 @@ class FirestoreService {
     }
   }
 }
+
+extension FirestoreServiceAdminExt on FirestoreService {
+  // Admin: Update user document with role synchronization
+  Future<void> updateUser(String uid, Map<String, dynamic> data) async {
+    await _firestore.collection('users').doc(uid).update(data);
+    if (data.containsKey('role')) {
+      final role = data['role'] as String?;
+      if (role == 'student') {
+        final doc = await _firestore.collection('students').doc(uid).get();
+        if (!doc.exists) {
+          await _firestore.collection('students').doc(uid).set({
+            'name': data['name'] ?? '',
+            'email': data['email'] ?? '',
+            'studentId': '',
+            'className': '',
+            'section': '',
+            'dateOfBirth': DateTime.now(),
+            'phoneNumber': '',
+            'address': '',
+            'parentName': '',
+            'parentPhone': '',
+            'admissionDate': DateTime.now(),
+            'isActive': true,
+          });
+        }
+        final teacherDoc = await _firestore
+            .collection('teachers')
+            .doc(uid)
+            .get();
+        if (teacherDoc.exists) {
+          await _firestore.collection('teachers').doc(uid).delete();
+        }
+      } else if (role == 'teacher') {
+        final doc = await _firestore.collection('teachers').doc(uid).get();
+        if (!doc.exists) {
+          await _firestore.collection('teachers').doc(uid).set({
+            'name': data['name'] ?? '',
+            'email': data['email'] ?? '',
+            'teacherId': '',
+            'department': '',
+            'qualification': '',
+            'dateOfBirth': DateTime.now(),
+            'phoneNumber': '',
+            'address': '',
+            'joiningDate': DateTime.now(),
+            'assignedClasses': [],
+            'subjects': [],
+            'isActive': true,
+          });
+        }
+        final studentDoc = await _firestore
+            .collection('students')
+            .doc(uid)
+            .get();
+        if (studentDoc.exists) {
+          await _firestore.collection('students').doc(uid).delete();
+        }
+      } else if (role == 'admin') {
+        final studentDoc = await _firestore
+            .collection('students')
+            .doc(uid)
+            .get();
+        if (studentDoc.exists) {
+          await _firestore.collection('students').doc(uid).delete();
+        }
+        final teacherDoc = await _firestore
+            .collection('teachers')
+            .doc(uid)
+            .get();
+        if (teacherDoc.exists) {
+          await _firestore.collection('teachers').doc(uid).delete();
+        }
+      }
+    }
+  }
+
+  // Admin: Delete user and clean references
+  Future<void> deleteUser(String uid) async {
+    await _firestore.collection('users').doc(uid).delete();
+    final studentDoc = await _firestore.collection('students').doc(uid).get();
+    if (studentDoc.exists) {
+      await _firestore.collection('students').doc(uid).delete();
+    }
+    final teacherDoc = await _firestore.collection('teachers').doc(uid).get();
+    if (teacherDoc.exists) {
+      await _firestore.collection('teachers').doc(uid).delete();
+    }
+    final classes = await _firestore.collection('classes').get();
+    for (final doc in classes.docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      final List<dynamic> studentIds = List<dynamic>.from(
+        data['studentIds'] ?? [],
+      );
+      bool changed = false;
+      if (studentIds.contains(uid)) {
+        changed = true;
+        studentIds.removeWhere((e) => e == uid);
+      }
+      if (data['teacherId'] == uid) {
+        changed = true;
+        data['teacherId'] = '';
+        data['teacherName'] = '';
+      }
+      if (changed) {
+        await _firestore.collection('classes').doc(doc.id).update({
+          'studentIds': studentIds,
+          'teacherId': data['teacherId'],
+          'teacherName': data['teacherName'],
+        });
+      }
+    }
+  }
+
+  // Admin: Enrollment and assignment helpers
+  Future<void> enrollStudents(String classId, List<String> studentIds) async {
+    await _firestore.collection('classes').doc(classId).update({
+      'studentIds': FieldValue.arrayUnion(studentIds),
+    });
+  }
+
+  Future<void> removeStudent(String classId, String studentId) async {
+    await _firestore.collection('classes').doc(classId).update({
+      'studentIds': FieldValue.arrayRemove([studentId]),
+    });
+  }
+
+  Future<void> assignTeacher(
+    String classId,
+    String teacherId,
+    String teacherName,
+  ) async {
+    await _firestore.collection('classes').doc(classId).update({
+      'teacherId': teacherId,
+      'teacherName': teacherName,
+    });
+  }
+}
