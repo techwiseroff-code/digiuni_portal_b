@@ -4,9 +4,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/data_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:excel/excel.dart';
-import 'package:path_provider/path_provider.dart';
+import '../../utils/save_file.dart' as saver;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:io';
 
 class AdminManageUsersScreen extends StatefulWidget {
   const AdminManageUsersScreen({super.key});
@@ -341,15 +340,14 @@ class _AdminManageUsersScreenState extends State<AdminManageUsersScreen> {
       );
     }
     final bytes = excel.encode()!;
-    final dir = await getTemporaryDirectory();
-    final file = File(
-      '${dir.path}/${isTeacher ? 'teacher_template' : 'student_template'}.xlsx',
+    final path = await saver.saveBytes(
+      '${isTeacher ? 'teacher_template' : 'student_template'}.xlsx',
+      bytes,
     );
-    await file.writeAsBytes(bytes, flush: true);
     if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Template saved to ${file.path}')));
+      ).showSnackBar(SnackBar(content: Text('Template saved to $path')));
     }
   }
 
@@ -357,11 +355,17 @@ class _AdminManageUsersScreenState extends State<AdminManageUsersScreen> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
+      withData: true,
     );
     if (result == null || result.files.isEmpty) return;
-    final path = result.files.single.path;
-    if (path == null) return;
-    final bytes = await File(path).readAsBytes();
+    final picked = result.files.single;
+    final bytes = picked.bytes;
+    if (bytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to read file bytes')),
+      );
+      return;
+    }
     final excel = Excel.decodeBytes(bytes);
     final table = excel.tables[excel.tables.keys.first];
     if (table == null) return;
