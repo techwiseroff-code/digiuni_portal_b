@@ -221,6 +221,10 @@ class FirestoreService {
         .set(timetable.toMap());
   }
 
+  Future<void> deleteTimetable(String timetableId) async {
+    await _firestore.collection('timetables').doc(timetableId).delete();
+  }
+
   // Notification Operations
   Stream<List<NotificationModel>> getUserNotificationsStream(
     String userId, {
