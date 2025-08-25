@@ -182,6 +182,37 @@ class AuthService {
     }
   }
 
+  // Admin-only: Delete a Firebase Auth user by UID using admin reauthentication flow.
+  // Note: Client SDK cannot delete arbitrary users; here we delete the currently signed-in user if matching.
+  // For admin panel bulk deletion, we first try to sign in to the target account temporarily via secondary app
+  // and delete it, without affecting admin session.
+  Future<bool> deleteAuthUserByEmailPassword(
+    String email,
+    String password,
+  ) async {
+    try {
+      FirebaseApp? secondaryApp;
+      try {
+        secondaryApp = Firebase.app('admin_secondary_delete');
+      } catch (_) {
+        secondaryApp = await Firebase.initializeApp(
+          name: 'admin_secondary_delete',
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      }
+      final secondaryAuth = FirebaseAuth.instanceFor(app: secondaryApp);
+      final cred = await secondaryAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await cred.user?.delete();
+      await secondaryAuth.signOut();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   // Handle authentication errors
   String _handleAuthError(dynamic e) {
     if (e is FirebaseAuthException) {
