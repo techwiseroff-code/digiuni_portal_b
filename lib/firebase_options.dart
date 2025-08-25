@@ -29,46 +29,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyBzfFeY47ACK3Y9efxRJCjBjJnZWBaVahQ',
+    appId: '1:66724907478:web:981968a96a3079dfccbc77',
+    messagingSenderId: '66724907478',
+    projectId: 'digiuni-portal',
+    authDomain: 'digiuni-portal.firebaseapp.com',
+    storageBucket: 'digiuni-portal.firebasestorage.app',
+    measurementId: 'G-M6CWFS2P14',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyBYlS0VGqfRr4i0GEaRbXbHNIIvMylhGpw',
+    appId: '1:66724907478:android:74968ad58a6aef78ccbc77',
+    messagingSenderId: '66724907478',
+    projectId: 'digiuni-portal',
+    storageBucket: 'digiuni-portal.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyAlDULIPTU5AhYhOFTOFDWRHzECMzCcoN4',
+    appId: '1:66724907478:ios:f70cdf77f5cbf593ccbc77',
+    messagingSenderId: '66724907478',
+    projectId: 'digiuni-portal',
+    storageBucket: 'digiuni-portal.firebasestorage.app',
     iosBundleId: 'com.example.digiuniPortal',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyAlDULIPTU5AhYhOFTOFDWRHzECMzCcoN4',
+    appId: '1:66724907478:ios:f70cdf77f5cbf593ccbc77',
+    messagingSenderId: '66724907478',
+    projectId: 'digiuni-portal',
+    storageBucket: 'digiuni-portal.firebasestorage.app',
     iosBundleId: 'com.example.digiuniPortal',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyBzfFeY47ACK3Y9efxRJCjBjJnZWBaVahQ',
+    appId: '1:66724907478:web:0302134115ff7ef5ccbc77',
+    messagingSenderId: '66724907478',
+    projectId: 'digiuni-portal',
+    authDomain: 'digiuni-portal.firebaseapp.com',
+    storageBucket: 'digiuni-portal.firebasestorage.app',
+    measurementId: 'G-6EVEX7Z7R9',
   );
 
   static const FirebaseOptions linux = FirebaseOptions(
